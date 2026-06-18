@@ -48,6 +48,8 @@ from pydantic import BaseModel
 
 from app.services.repository_store import get_repository
 from app.services.embedding_service import create_embedding
+# from backend.app.services.openai_service import ask_codebase
+from app.services.openai_service import ask_codebase
 
 router = APIRouter()
 
@@ -78,7 +80,26 @@ async def chat(request: ChatRequest):
         k=5
     )
 
+    documents = []
+
+    for result in results:
+        documents.append(
+            {
+                "path": result["path"],
+                "content": result["content"]
+            }
+        )
+
+    answer = ask_codebase(
+        request.question,
+        documents
+    )
+
     return {
         "question": request.question,
-        "matches": results
+        "answer": answer,
+        "sources": [
+            doc["path"]
+            for doc in documents
+        ]
     }

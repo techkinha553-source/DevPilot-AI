@@ -3,13 +3,17 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.so
 
 # Virtual Environment
 .venv/
 venv/
+env/
 
 # Environment Variables
 .env
+.env.local
+.env.production
 
 # VS Code
 .vscode/
@@ -25,3 +29,24 @@ vector_stores/
 
 # Logs
 *.log
+
+# Test & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Ollama cache (if accidentally created in project)
+models/
+
+# Node (for future frontend)
+node_modules/
+.next/
+out/

@@ -1,6 +1,7 @@
 import shutil
 import uuid
 import zipfile
+import json
 from pathlib import Path
 
 from app.services.code_reader import read_repository
@@ -59,6 +60,15 @@ async def upload_repository(file: UploadFile = File(...)):
         upload_path=extract_path,
 
     )
+
+    metadata = {
+        "repository_id": repo_id,
+        "total_files": len(files),
+        "documents_loaded": len(documents)
+    }
+
+    with open(extract_path / "metadata.json", "w") as f:
+        json.dump(metadata, f, indent=4)
 
     return {
         "repository_id": repo_id,

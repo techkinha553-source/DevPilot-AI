@@ -1,15 +1,4 @@
-import os
-from dotenv import load_dotenv
-from openai import OpenAI
-
-load_dotenv()
-
-def get_client():
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set.")
-    return OpenAI(api_key=api_key)
-
+from ollama import chat
 
 def ask_codebase(question: str, documents: list[dict]) -> str:
     context_parts = []
@@ -21,7 +10,6 @@ def ask_codebase(question: str, documents: list[dict]) -> str:
         )
 
     context = "\n\n".join(context_parts)
-    client = get_client()
 
     prompt = f"""
 You are an expert software engineer.
@@ -36,12 +24,12 @@ Question:
 Answer only using information from the repository when possible.
 """
 
-    response = client.chat.completions.create(
-        model="gpt-5",
+    response = chat(
+        model="qwen3",
         messages=[
             {
                 "role": "system",
-                "content": "You are an expert code assistant."
+                "content": "You are an expert code assistant. Answer only from the repository context when possible."
             },
             {
                 "role": "user",
@@ -50,4 +38,4 @@ Answer only using information from the repository when possible.
         ]
     )
 
-    return response.choices[0].message.content
+    return response["message"]["content"]
