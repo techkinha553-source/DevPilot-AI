@@ -12,17 +12,17 @@ def ask_codebase(question: str, documents: list[dict]) -> str:
     context = "\n\n".join(context_parts)
 
     prompt = f"""
-You are an expert software engineer.
+            You are an expert software engineer.
 
-Below is the repository content.
+            Below is the repository content.
 
-{context}
+            {context}
 
-Question:
-{question}
+            Question:
+            {question}
 
-Answer only using information from the repository when possible.
-"""
+            Answer only using information from the repository when possible.
+        """
 
     response = chat(
         model="qwen3",
