@@ -8,8 +8,11 @@ from app.services.code_reader import read_repository
 from app.services.parser import scan_repository
 from app.services.rag_builder import build_vector_store
 from app.services.repository_store import save_repository
+from app.services.summary_service import (
+    generate_repository_summary
+)
 
-router = APIRouter()
+router = APIRouter(tags=["GitHub"])
 
 UPLOAD_ROOT = Path("app/uploads")
 UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
@@ -44,10 +47,15 @@ async def import_github_repo(request: GithubRequest):
 
     store = build_vector_store(documents)
 
+    summary = generate_repository_summary(
+        documents
+    )
+
     save_repository(
         repository_id=repo_id,
         vector_store=store,
-        documents=documents
+        documents=documents,
+        summary=summary
     )
 
     return {

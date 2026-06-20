@@ -9,6 +9,9 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from app.services.rag_builder import build_vector_store
 from app.services.repository_metadata import save_metadata
 from app.services.repository_store import save_repository
+from app.services.repository_summary import (
+    generate_repository_summary
+)
 
 from app.services.parser import scan_repository
 
@@ -36,6 +39,10 @@ async def upload_repository(file: UploadFile = File(...)):
     files = scan_repository(str(extract_path))
 
     documents = read_repository(str(extract_path))
+
+    summary = generate_repository_summary(
+        documents
+    )
 
     store = build_vector_store(documents)
 

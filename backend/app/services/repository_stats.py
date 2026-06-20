@@ -1,18 +1,61 @@
-from pathlib import Path
+def detect_stack(documents):
+
+    stack = {
+        "frontend": [],
+        "backend": [],
+        "database": []
+    }
+
+    for doc in documents:
+
+        path = doc["path"].lower()
+
+        if "next.config" in path:
+            stack["frontend"].append(
+                "Next.js"
+            )
+
+        if path.endswith(".tsx"):
+            stack["frontend"].append(
+                "React"
+            )
+
+        if "fastapi" in doc["content"].lower():
+            stack["backend"].append(
+                "FastAPI"
+            )
+
+        if "mongodb" in doc["content"].lower():
+            stack["database"].append(
+                "MongoDB"
+            )
+
+    for key in stack:
+        stack[key] = list(
+            set(stack[key])
+        )
+
+    return stack
 
 
-def calculate_repository_stats(root: str):
-    root_path = Path(root)
+def calculate_repository_stats(documents):
 
-    total_size = 0
-    file_count = 0
+    total_files = len(documents)
 
-    for path in root_path.rglob("*"):
-        if path.is_file():
-            file_count += 1
-            total_size += path.stat().st_size
+    total_lines = 0
+
+    for doc in documents:
+
+        total_lines += len(
+            doc["content"].splitlines()
+        )
+
+    stack = detect_stack(
+        documents
+    )
 
     return {
-        "total_files": file_count,
-        "total_size_bytes": total_size,
+        "total_files": total_files,
+        "total_lines": total_lines,
+        "stack": stack
     }
