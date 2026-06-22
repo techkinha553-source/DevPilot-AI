@@ -20,3 +20,22 @@ def get_memory(repository_id):
         repository_id,
         []
     )
+
+
+# Backward compatibility aliases
+# Older agent modules may import save_memory3/get_memory3
+
+def save_memory3(
+    repository_id,
+    question,
+    answer
+):
+    return save_memory(
+        repository_id,
+        question,
+        answer
+    )
+
+
+def get_memory3(repository_id):
+    return get_memory(repository_id)

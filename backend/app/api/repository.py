@@ -22,6 +22,25 @@ from app.services.code_explainer import (
     explain_repository
 )
 from app.services.bug_fixer import generate_fixes
+from app.services.architecture_report import (
+    generate_architecture_report
+)
+from app.services.improvement_service import (
+    generate_improvements
+)
+from app.services.engineering_score import (
+    calculate_engineering_score
+)
+from app.services.executive_report import (
+    generate_executive_report
+)
+from app.models.question import (
+    RepositoryQuestion
+)
+
+from app.services.repository_qa import (
+    answer_repository_question
+)
 
 router = APIRouter()
 
@@ -893,4 +912,88 @@ def repository_fixes(repository_id: str):
         "fixes": generate_fixes(
             repo["documents"]
         )
+    }
+
+@router.get(
+    "/repository/{repository_id}/architecture-report"
+)
+def architecture_report(
+    repository_id: str
+):
+
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    return generate_architecture_report(
+        repo
+    )
+
+@router.get("/repository/{repository_id}/improvements")
+def repository_improvements(repository_id: str):
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    return generate_improvements(repo)
+
+@router.get("/repository/{repository_id}/engineering-score")
+def repository_engineering_score(repository_id: str):
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    return {
+        "repository_id": repository_id,
+        "engineering_score":
+            calculate_engineering_score(repo)
+    }
+
+@router.get("/repository/{repository_id}/executive-report")
+def repository_executive_report(repository_id: str):
+
+    repo = get_repository(repository_id)
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+    return {
+        "repository_id": repository_id,
+        "report":
+            generate_executive_report(repo)
+    }
+
+@router.post(
+    "/repository/{repository_id}/ask"
+)
+def ask_repository(
+    repository_id: str,
+    request: RepositoryQuestion
+):
+
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    answer = answer_repository_question(
+        repo,
+        request.question
+    )
+
+    return {
+        "repository_id": repository_id,
+        "question": request.question,
+        "answer": answer
     }

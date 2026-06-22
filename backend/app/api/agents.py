@@ -8,6 +8,13 @@ from app.services.security_agent import security_review
 from app.services.architect_agent import architecture_review
 from app.services.test_agent import generate_tests
 from app.services.agent_memory import save_memory
+from app.services.architect_agent import (
+    architecture_review
+)
+
+from app.models.architect_request import (
+    ArchitectRequest
+)
 
 router = APIRouter()
 
@@ -91,3 +98,17 @@ def team_review(repository_id: str):
     )
 
     return result
+
+@router.post("/repository/{repository_id}/architect")
+def architect_agent(repository_id: str,request: ArchitectRequest):
+    repo = get_repository(
+    repository_id
+    )
+
+    if not repo:
+        return {
+            "error":
+            "Repository not found"
+        }
+
+    return architecture_review(repo)

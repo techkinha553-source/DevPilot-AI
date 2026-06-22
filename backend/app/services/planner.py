@@ -1,6 +1,4 @@
-from app.services.openai_service import get_client
 
-client = get_client()
 
 def create_plan(task: str) -> str:
     q = task.lower()
@@ -38,3 +36,9 @@ def create_plan(task: str) -> str:
         return "tester"
 
     return "assistant"
+
+
+# Backward compatibility for older imports
+# app.api.agents expects route_task()
+def route_task(task: str) -> str:
+    return create_plan(task)

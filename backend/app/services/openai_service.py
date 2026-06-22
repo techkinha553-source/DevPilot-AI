@@ -1,5 +1,19 @@
 from ollama import chat
 
+
+# Compatibility layer for OpenAI-based interface
+class OllamaClient:
+
+    def chat(self, prompt: str):
+        return ask_llm(prompt)
+
+
+# Compatibility function for older services
+# that still expect get_client()
+# from OpenAI-based implementations.
+def get_client():
+    return OllamaClient()
+
 def ask_codebase(question: str, documents: list[dict]) -> str:
     context_parts = []
 
@@ -39,3 +53,26 @@ def ask_codebase(question: str, documents: list[dict]) -> str:
     )
 
     return response["message"]["content"]
+
+
+def ask_llm(prompt: str) -> str:
+
+    response = chat(
+        model="qwen3",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are an expert software engineer."
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+    )
+
+    return response["message"]["content"]
+
+
+# Backward compatibility alias
+ask_openai = ask_llm
