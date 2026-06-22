@@ -17,6 +17,16 @@ from app.api.insights import (
 from app.api.architecture import (
     router as architecture_router
 )
+from app.api.generate import (
+    router as generate_router
+)
+from app.api.assistant import (
+    router as assistant_router
+)
+from app.api.agents import router as agents_router
+from app.api.agent_memory import (
+    router as agent_memory_router
+)
 
 app = FastAPI(title="DevPilot AI")
 
@@ -33,6 +43,14 @@ app.include_router(
 )
 app.include_router(
     architecture_router
+)
+app.include_router(generate_router)
+app.include_router(
+    assistant_router
+)
+app.include_router(agents_router)
+app.include_router(
+    agent_memory_router
 )
 
 @app.get("/")

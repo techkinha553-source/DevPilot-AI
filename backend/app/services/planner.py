@@ -3,21 +3,38 @@ from app.services.openai_service import get_client
 client = get_client()
 
 def create_plan(task: str) -> str:
-    response = client.chat.completions.create(
-        model="gpt-5",
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a senior software architect. "
-                    "Break the request into clear implementation steps."
-                ),
-            },
-            {
-                "role": "user",
-                "content": task,
-            },
-        ],
-    )
+    q = task.lower()
 
-    return response.choices[0].message.content
+    if any(word in q for word in [
+        "security",
+        "vulnerability",
+        "secret",
+        "password",
+        "token"
+    ]):
+        return "security"
+
+    if any(word in q for word in [
+        "architecture",
+        "design",
+        "structure"
+    ]):
+        return "architect"
+
+    if any(word in q for word in [
+        "bug",
+        "review",
+        "smell",
+        "quality",
+        "refactor"
+    ]):
+        return "reviewer"
+
+    if any(word in q for word in [
+        "test",
+        "testing",
+        "unit test"
+    ]):
+        return "tester"
+
+    return "assistant"

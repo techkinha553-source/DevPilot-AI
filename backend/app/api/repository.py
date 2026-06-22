@@ -9,6 +9,19 @@ from app.services.repository_store import get_repository
 from app.services.tech_stack import detect_tech_stack
 from app.services.language_stats import detect_languages
 from pathlib import Path
+from app.services.documentation_generator import (
+    generate_documentation
+)
+from app.services.api_doc_generator import (
+    generate_api_docs
+)
+from app.services.test_case_generator import (
+    generate_test_cases
+)
+from app.services.code_explainer import (
+    explain_repository
+)
+from app.services.bug_fixer import generate_fixes
 
 router = APIRouter()
 
@@ -803,4 +816,81 @@ def repository_quality_score(repository_id: str):
         "weaknesses": weaknesses,
         "code_smells_detected": total_smells,
         "bugs_detected": total_bugs
+    }
+
+@router.get("/repository/{repository_id}/documentation")
+def repository_documentation(repository_id: str):
+
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {"error": "Repository not found"}
+
+    docs = generate_documentation(
+        repo["documents"]
+    )
+
+    return {
+        "repository_id": repository_id,
+        "documentation": docs
+    }
+
+@router.get("/repository/{repository_id}/api-docs")
+def repository_api_docs(repository_id: str):
+
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {"error": "Repository not found"}
+
+    return {
+        "repository_id": repository_id,
+        "api_docs": generate_api_docs(
+            repo["documents"]
+        )
+    }
+
+@router.get("/repository/{repository_id}/tests")
+def repository_tests(repository_id: str):
+
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {"error": "Repository not found"}
+
+    return {
+        "repository_id": repository_id,
+        "tests": generate_test_cases(
+            repo["documents"]
+        )
+    }
+
+@router.get("/repository/{repository_id}/explain")
+def repository_explain(repository_id: str):
+
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {"error": "Repository not found"}
+
+    return {
+        "repository_id": repository_id,
+        "explanation": explain_repository(
+            repo["documents"]
+        )
+    }
+
+@router.get("/repository/{repository_id}/fixes")
+def repository_fixes(repository_id: str):
+
+    repo = get_repository(repository_id)
+
+    if not repo:
+        return {"error": "Repository not found"}
+
+    return {
+        "repository_id": repository_id,
+        "fixes": generate_fixes(
+            repo["documents"]
+        )
     }
