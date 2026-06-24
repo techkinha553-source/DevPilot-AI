@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from app.core.logger import logger
 
 from app.services.repository_store import get_repository
 from app.services.embedding_service import create_embedding
@@ -16,6 +17,10 @@ class ChatRequest(BaseModel):
 
 @router.post("/chat")
 async def chat(request: ChatRequest):
+
+    logger.info(
+        f"Repository chat started for {request.repository_id}"
+    )
 
     repo = get_repository(
         request.repository_id
@@ -34,6 +39,9 @@ async def chat(request: ChatRequest):
         query_embedding,
         k=5
     )
+    logger.info(
+        f"Retrieved {len(results)} documents for repository {request.repository_id}"
+    )
 
     documents = []
 
@@ -45,9 +53,17 @@ async def chat(request: ChatRequest):
             }
         )
 
+    logger.info(
+        f"Generating answer for repository {request.repository_id}"
+    )
+
     answer = ask_codebase(
         request.question,
         documents
+    )
+
+    logger.info(
+        f"Chat completed for repository {request.repository_id}"
     )
 
     return {

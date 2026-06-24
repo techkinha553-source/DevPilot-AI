@@ -14,6 +14,7 @@ from app.services.repository_summary import (
 )
 
 from app.services.parser import scan_repository
+from app.core.logger import logger
 
 router = APIRouter()
 
@@ -26,6 +27,9 @@ async def upload_repository(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Please upload a ZIP file.")
 
     repo_id = str(uuid.uuid4())
+    logger.info(
+        f"Starting upload for repository {repo_id} ({file.filename})"
+    )
 
     zip_path = UPLOAD_ROOT / f"{repo_id}.zip"
     extract_path = UPLOAD_ROOT / repo_id
@@ -50,6 +54,10 @@ async def upload_repository(file: UploadFile = File(...)):
         repository_id=repo_id,
         vector_store=store,
         documents=documents
+    )
+
+    logger.info(
+        f"Repository {repo_id} indexed with {len(documents)} documents"
     )
 
     vector_folder = extract_path / ".vector_index"
@@ -77,6 +85,9 @@ async def upload_repository(file: UploadFile = File(...)):
     with open(extract_path / "metadata.json", "w") as f:
         json.dump(metadata, f, indent=4)
 
+    logger.info(
+        f"Repository {repo_id} uploaded successfully with {len(files)} files"
+    )
     return {
         "repository_id": repo_id,
         "total_files": len(files),

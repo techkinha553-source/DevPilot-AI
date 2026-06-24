@@ -42,6 +42,58 @@ from app.services.repository_qa import (
     answer_repository_question
 )
 
+from app.services.dashboard_summary import (
+    generate_dashboard_summary
+)
+
+from app.models.search_request import (
+    SearchRequest
+)
+
+from app.services.embedding_service import (
+    create_embedding
+)
+
+from app.services.repository_search import (
+    search_repository
+)
+
+from app.services.commit_message_generator import (
+    generate_commit_messages
+)
+
+from app.services.pr_summary_generator import (
+    generate_pr_summary
+)
+
+from app.services.release_notes_generator import (
+    generate_release_notes
+)
+
+from app.services.repository_health import (
+    generate_repository_health
+)
+
+from app.models.pr_review import (
+    PRReviewRequest
+)
+
+from app.services.pr_reviewer import (
+    review_pull_request
+)
+
+from app.services.bug_fix_planner import (
+    generate_bug_fix_plan
+)
+
+from app.services.refactor_planner import (
+    generate_refactor_plan
+)
+
+from app.services.dependency_analyzer import (
+    analyze_dependencies
+)
+
 router = APIRouter()
 
 UPLOAD_DIR = Path("app/uploads")
@@ -996,4 +1048,276 @@ def ask_repository(
         "repository_id": repository_id,
         "question": request.question,
         "answer": answer
+    }
+
+@router.get(
+    "/repository/{repository_id}/dashboard"
+)
+def repository_dashboard(
+    repository_id: str
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    dashboard = (
+        generate_dashboard_summary(
+            repo
+        )
+    )
+
+    return {
+        "repository_id": repository_id,
+        **dashboard
+    }
+
+
+@router.post(
+    "/repository/{repository_id}/search"
+)
+def repository_search(
+    repository_id: str,
+    request: SearchRequest
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    query_embedding = (
+        create_embedding(
+            request.query
+        )
+    )
+
+    results = search_repository(
+        repo["vector_store"],
+        query_embedding
+    )
+
+    return {
+        "repository_id": repository_id,
+        "query": request.query,
+        "results": results
+    }
+
+@router.get(
+    "/repository/{repository_id}/commit-messages"
+)
+def repository_commit_messages(
+    repository_id: str
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    return {
+        "repository_id": repository_id,
+        "commit_messages":
+            generate_commit_messages(
+                repo
+            )
+    }
+
+@router.get(
+    "/repository/{repository_id}/pr-summary"
+)
+def repository_pr_summary(
+    repository_id: str
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    return {
+        "repository_id": repository_id,
+        "summary":
+            generate_pr_summary(
+                repo
+            )
+    }
+
+@router.get(
+    "/repository/{repository_id}/release-notes"
+)
+def repository_release_notes(
+    repository_id: str
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    return {
+        "repository_id": repository_id,
+        "release_notes":
+            generate_release_notes(
+                repo
+            )
+    }
+
+@router.get(
+    "/repository/{repository_id}/health"
+)
+def repository_health(
+    repository_id: str
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    return {
+        "repository_id":
+            repository_id,
+        "health":
+            generate_repository_health(
+                repo
+            )
+    }
+
+@router.post(
+    "/repository/{repository_id}/pr-review"
+)
+def repository_pr_review(
+    repository_id: str,
+    request: PRReviewRequest
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    review = review_pull_request(
+        repo,
+        request.changed_files
+    )
+
+    return {
+        "repository_id":
+            repository_id,
+        "review":
+            review
+    }
+
+@router.get(
+    "/repository/{repository_id}/bug-fixes"
+)
+def repository_bug_fixes(
+    repository_id: str
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    fixes = generate_bug_fix_plan(
+        repo
+    )
+
+    return {
+        "repository_id":
+            repository_id,
+        "bug_fixes":
+            fixes,
+        "total_fixes":
+            len(fixes)
+    }
+
+@router.get(
+    "/repository/{repository_id}/refactor-plan"
+)
+def repository_refactor_plan(
+    repository_id: str
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error": "Repository not found"
+        }
+
+    plan = generate_refactor_plan(
+        repo
+    )
+
+    return {
+        "repository_id":
+            repository_id,
+        "refactor_plan":
+            plan,
+        "total_actions":
+            len(plan)
+    }
+
+@router.get(
+    "/repository/{repository_id}/dependency-analysis"
+)
+def repository_dependency_analysis(
+    repository_id: str
+):
+
+    repo = get_repository(
+        repository_id
+    )
+
+    if not repo:
+        return {
+            "error":
+                "Repository not found"
+        }
+
+    return {
+        "repository_id":
+            repository_id,
+        "dependency_analysis":
+            analyze_dependencies(
+                repo
+            )
     }

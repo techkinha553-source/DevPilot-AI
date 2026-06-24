@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 
+from fastapi.responses import JSONResponse
 from app.api.upload import router as upload_router
 from app.api.chat import router as chat_router
 from app.api.repository import router as repository_router
 from app.api.github import router as github_router
-from app.api.repository import router as repository_router
 from app.api.summary import (
     router as summary_router
 )
@@ -27,8 +27,15 @@ from app.api.agents import router as agents_router
 from app.api.agent_memory import (
     router as agent_memory_router
 )
+from app.core.logger import logger
+
+import time
 
 app = FastAPI(title="DevPilot AI")
+
+logger.info(
+    "DevPilot AI backend started"
+)
 
 app.include_router(upload_router)
 app.include_router(chat_router)
@@ -58,3 +65,60 @@ def root():
     return {
         "message": "DevPilot AI backend is running"
     }
+
+@app.exception_handler(Exception)
+async def global_exception_handler(
+    request,
+    exc
+):
+
+    logger.error(
+        f"Unhandled exception: {str(exc)}"
+    )
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "error": str(exc)
+        }
+    )
+
+@app.get("/health")
+def health():
+
+    logger.info(
+        "Health endpoint called"
+    )
+
+    return {
+        "status": "healthy"
+    }
+
+@app.middleware("http")
+
+async def process_time(
+
+    request,
+
+    call_next
+
+):
+
+    start = time.time()
+
+    response = await call_next(
+
+        request
+
+    )
+
+    process_time = (
+
+        time.time() - start
+
+    )
+
+    response.headers["X-Process-Time"] = f"{process_time:.4f}"
+
+    return response
