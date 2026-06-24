@@ -6,6 +6,7 @@ from app.services.repository_store import get_repository
 from app.services.embedding_service import create_embedding
 # from backend.app.services.openai_service import ask_codebase
 from app.services.openai_service import ask_codebase
+from app.services.user_store import user_stats
 
 router = APIRouter()
 

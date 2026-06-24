@@ -1,15 +1,18 @@
 repository_memory = {}
+repositories = repository_memory
 
 
 def save_repository(
     repository_id,
+    owner,
     vector_store,
     documents,
     summary
 ):
     repository_memory[repository_id] = {
-        "vector_store": vector_store,
+        "owner": owner,
         "documents": documents,
+        "vector_store": vector_store,
         "summary": summary
     }
 

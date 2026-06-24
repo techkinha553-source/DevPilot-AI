@@ -6,6 +6,7 @@ from pathlib import Path
 
 from app.services.code_reader import read_repository
 from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import Form
 from app.services.rag_builder import build_vector_store
 from app.services.repository_metadata import save_metadata
 from app.services.repository_store import save_repository
@@ -15,6 +16,8 @@ from app.services.repository_summary import (
 
 from app.services.parser import scan_repository
 from app.core.logger import logger
+from app.services.user_store import user_stats
+from app.services.activity_store import activity_log
 
 router = APIRouter()
 
@@ -22,7 +25,10 @@ UPLOAD_ROOT = Path("app/uploads")
 UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
 
 @router.post("/upload")
-async def upload_repository(file: UploadFile = File(...)):
+async def upload_repository(
+    file: UploadFile = File(...),
+    owner_email: str = Form(...)
+):
     if not file.filename.endswith(".zip"):
         raise HTTPException(status_code=400, detail="Please upload a ZIP file.")
 
@@ -48,17 +54,34 @@ async def upload_repository(file: UploadFile = File(...)):
         documents
     )
 
+    if owner_email in user_stats:
+
+        user_stats[owner_email]["repositories"] += 1
+
+        user_stats[owner_email]["files_analyzed"] += len(
+            documents
+        )
+    
+
     store = build_vector_store(documents)
 
     save_repository(
         repository_id=repo_id,
+        owner=owner_email,
         vector_store=store,
-        documents=documents
+        documents=documents,
+        summary=summary
     )
 
     logger.info(
         f"Repository {repo_id} indexed with {len(documents)} documents"
     )
+
+    activity_log.append({
+        "type": "upload",
+        "email": owner_email,
+        "message": f"Uploaded repository {file.filename}"
+    })
 
     vector_folder = extract_path / ".vector_index"
     # store.save(str(vector_folder))
