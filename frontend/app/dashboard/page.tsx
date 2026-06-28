@@ -11,8 +11,13 @@ export default function Dashboard() {
 
     const [stats, setStats] = useState<any>({});
     const [activities, setActivities] = useState<any[]>([]);
+    const [userEmail, setUserEmail] = useState("User");
 
     useEffect(() => {
+        const user = getCurrentUser();
+        if (user?.email) {
+            setUserEmail(user.email);
+        }
         loadDashboard();
         loadActivities();
     }, []);
@@ -55,7 +60,7 @@ export default function Dashboard() {
                         Dashboard
                     </Link>
 
-                    <Link href="/" className="hover:text-blue-600">
+                    <Link href="/repositories" className="hover:text-blue-600">
                         Repositories
                     </Link>
 
@@ -104,7 +109,7 @@ export default function Dashboard() {
                         </button>
 
                         <div className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
-                            {getCurrentUser()?.email || "User"}
+                            {userEmail}
                         </div>
 
                     </div>

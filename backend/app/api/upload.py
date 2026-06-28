@@ -54,13 +54,16 @@ async def upload_repository(
         documents
     )
 
-    if owner_email in user_stats:
+    if owner_email not in user_stats:
+        user_stats[owner_email] = {
+            "repositories": 0,
+            "files_analyzed": 0,
+            "questions_asked": 0,
+            "avg_health_score": 100
+        }
 
-        user_stats[owner_email]["repositories"] += 1
-
-        user_stats[owner_email]["files_analyzed"] += len(
-            documents
-        )
+    user_stats[owner_email]["repositories"] += 1
+    user_stats[owner_email]["files_analyzed"] += len(documents)
     
 
     store = build_vector_store(documents)

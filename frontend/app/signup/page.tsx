@@ -15,7 +15,25 @@ export default function SignupPage() {
             password
         );
 
-        alert(result.message);
+        if (result?.email) {
+            alert("Signup successful. Please login.");
+            window.location.href = "/login";
+            return;
+        }
+
+        const errorMessage =
+            result?.message ||
+            result?.detail ||
+            "Signup failed";
+
+        alert(errorMessage);
+
+        if (
+            errorMessage.toLowerCase().includes("already") ||
+            errorMessage.toLowerCase().includes("exists")
+        ) {
+            window.location.href = "/login";
+        }
     };
 
     return (

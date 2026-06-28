@@ -17,13 +17,20 @@ export const signup = async (
         }
     );
 
-    return await res.json();
+    const data = await res.json();
+
+    console.log("SIGNUP STATUS:", res.status);
+    console.log("SIGNUP RESPONSE:", data);
+
+    return data;
 };
 
 export const login = async (
     email: string,
     password: string
 ) => {
+
+    console.log("Trying login...");
 
     const res = await fetch(
         "http://localhost:8000/login",
@@ -39,5 +46,11 @@ export const login = async (
         }
     );
 
-    return await res.json();
+    console.log("STATUS:", res.status);
+
+    const data = await res.json();
+
+    console.log("RESPONSE:", data);
+
+    return data;
 };

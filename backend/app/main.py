@@ -40,6 +40,16 @@ from app.api.activity import router as activity_router
 
 from app.api.repository_details import router as repository_details_router
 
+from app.api.file_content import router as file_content_router
+
+from app.api.explain_file import router as explain_file_router
+
+from app.api.review_file import router as review_file_router
+
+from app.api.audit_repository import router as audit_repository_router
+
+from app.api.dependencies import router as dependencies_router
+
 import time
 
 app = FastAPI(title="DevPilot AI")
@@ -85,6 +95,11 @@ app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(activity_router)
 app.include_router(repository_details_router)
+app.include_router(file_content_router)
+app.include_router(explain_file_router)
+app.include_router(review_file_router)
+app.include_router(audit_repository_router)
+app.include_router(dependencies_router)
 
 @app.get("/")
 def root():

@@ -15,7 +15,7 @@ export default function LoginPage() {
         const user = getCurrentUser();
 
         if (user) {
-            window.location.href = "/";
+            window.location.href = "/dashboard";
         }
 
     }, []);
@@ -27,17 +27,23 @@ export default function LoginPage() {
             password
         );
 
-        if (result.email) {
+        if (result?.email) {
 
             localStorage.setItem(
                 "devpilot_user",
                 JSON.stringify(result)
             );
 
-            window.location.href = "/";
+            alert("Login successful");
+            window.location.href = "/dashboard";
+            return;
         }
 
-        alert(result.message);
+        alert(
+            result?.message ||
+            result?.detail ||
+            "Login failed"
+        );
     };
 
     return (
@@ -72,6 +78,16 @@ export default function LoginPage() {
             >
                 Login
             </button>
+
+            <p className="mt-4 text-sm">
+                Don't have an account? 
+                <a
+                    href="/signup"
+                    className="text-blue-600 underline ml-1"
+                >
+                    Sign Up
+                </a>
+            </p>
 
         </main>
     );
